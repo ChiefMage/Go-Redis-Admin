@@ -2,5 +2,24 @@
 	"ImportPath": "Go-Redis-Admin",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v75",
-	"Deps": []
+	"Deps": [
+		{
+			"ImportPath": "github.com/alexedwards/scs/engine/memstore",
+			"Rev": "05f2c051214a1a036c734bfa40a74ebe3516a72e"
+		},
+		{
+			"ImportPath": "github.com/alexedwards/scs/session",
+			"Rev": "05f2c051214a1a036c734bfa40a74ebe3516a72e"
+		},
+		{
+			"ImportPath": "github.com/dchest/captcha",
+			"Comment": "weekly.2012-03-04-18-g9e95214",
+			"Rev": "9e952142169c3cd6268c6482a3a61c121536aca2"
+		},
+		{
+			"ImportPath": "github.com/patrickmn/go-cache",
+			"Comment": "v2.0.0-4-ge7a9def",
+			"Rev": "e7a9def80f35fe1b170b7b8b68871d59dea117e1"
+		}
+	]
 }
