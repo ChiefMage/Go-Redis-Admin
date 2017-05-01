@@ -1,15 +1,14 @@
 package main
 
 import (
-	"Go-Redis-Admin/api/v1"
-	"Go-Redis-Admin/common/exception"
-	"Go-Redis-Admin/controller/view"
-	"github.com/alexedwards/scs/engine/memstore"
-	"github.com/alexedwards/scs/session"
-	"io"
+	"Go-Redis-Admin/src/api/v1"
+	"Go-Redis-Admin/src/common/exception"
+	"Go-Redis-Admin/src/controller"
+	// "io"
 	// "fmt"
 	"log"
 	"net/http"
+	"os"
 	"reflect"
 	"strings"
 	"text/template"
@@ -22,19 +21,6 @@ func init() {
 func main() {
 	http.Handle("/", http.HandlerFunc(mainRouter))
 	err := http.ListenAndServe(":9090", nil) //设置监听的端口
-	// Initialise a new storage engine. Here we use the memstore package, but the approach
-	// is the same no matter which back-end store you choose.
-	engine := memstore.New(0)
-
-	// Initialise the session manager middleware, passing in the storage engine as
-	// the first parameter. This middleware will automatically handle loading and
-	// saving of session data for you.
-	sessionManager := session.Manage(engine)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/put", putHandler)
-	mux.HandleFunc("/get", getHandler)
-	http.ListenAndServe(":4000", sessionManager(mux))
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
@@ -65,6 +51,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 // main router
 func mainRouter(w http.ResponseWriter, r *http.Request) {
+
+	if strings.HasSuffix(r.URL.Path, ".ico") {
+		log.Println(r.URL.Path)
+		file := strings.Trim(r.URL.Path, "/")
+		f, err := os.Open(file)
+		defer f.Close()
+
+		if err != nil && os.IsNotExist(err) {
+			file = "favicon.ico"
+		}
+		http.ServeFile(w, r, file)
+		return
+	}
 	pathinfo := strings.ToLower(strings.Trim(r.URL.Path, "/"))
 	log.Println("main pathinfo", pathinfo)
 
@@ -127,7 +126,7 @@ func apiRouter(w http.ResponseWriter, r *http.Request, patterns []string) {
 
 // template router
 func tplRouter(w http.ResponseWriter, r *http.Request, patterns []string) {
-	handle := &view.Handlers{}
+	handle := &controller.Handlers{}
 	controller := reflect.ValueOf(handle)
 	log.Println(controller)
 	action := strings.Title(patterns[0]) + "Action"
@@ -146,25 +145,6 @@ func tplRouter(w http.ResponseWriter, r *http.Request, patterns []string) {
 // resource router
 func resRouter(w http.ResponseWriter, r *http.Request, patterns []string) {
 	log.Println("/" + patterns[0] + "/")
-	http.Handle("/"+patterns[0]+"/", http.StripPrefix("/"+patterns[0]+"/", http.FileServer(http.Dir("static"))))
-}
-
-func putHandler(w http.ResponseWriter, r *http.Request) {
-	// Use the PutString helper to store a new key and associated string value in
-	// the session data. Helpers are also available for many other data types.
-	err := session.PutString(r, "message", "Hello from a session!")
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-}
-
-func getHandler(w http.ResponseWriter, r *http.Request) {
-	// Use the GetString helper to retreive the string value associated with a key.
-	// The zero value is returned if the key does not exist.
-	msg, err := session.GetString(r, "message")
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	io.WriteString(w, msg)
+	log.Println("Dir:", http.Dir("web/static"))
+	http.Handle("/"+patterns[0]+"/", http.StripPrefix("/"+patterns[0]+"/", http.FileServer(http.Dir("web/static"))))
 }
