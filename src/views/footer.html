@@ -1,0 +1,12 @@
+{{define "footer"}}
+    
+    </div>
+    <script type="text/javascript">
+        var navId = "{{ .NavActive}}"
+        $(function(){
+            $('#'+navId).addClass("active");
+        })
+    </script>
+</body>
+</html>
+{{end}}
