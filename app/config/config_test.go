@@ -1,0 +1,6 @@
+/**
+ *
+ *  test configure
+ *
+ **/
+package config
